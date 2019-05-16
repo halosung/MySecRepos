@@ -1,0 +1,308 @@
+---
+title: "R_Handout_Markdown"
+author: "H24066016 statistics110"
+output:
+  pdf_document: default
+  html_document: default
+---
+---------------------
+
+#__high-level graphic in R__
+
+>The functions to draw these in R are called “high level” because you don’t need to worry about the details of where the ink goes; you just describe the plot you want, and R does the drawing.
+
+all content is based on [順林教授的講義](https://moodle.ncku.edu.tw/pluginfile.php/1262943/mod_resource/content/1/Programming_notes_20180909_for_class.pdf)
+
+
+
+
+##1.  Bar charts and dot charts 
+
+  + The most basic type of graph is one that summarizes a single set of numbers
+
+  + Bar charts and dot charts do this by displaying a bar or dot whoselengthor position corresponds to the number.
+
+###  displays a basic example based on a built-in dataset
+```{r,fig.show='hold',out.width='50%'}
+WorldPhones51 <- WorldPhones[1,] # built-in dataset
+WorldPhones51 
+barplot(WorldPhones51, cex.names = 0.75, cex.axis = 0.75, main = "Numbers of Telephones in 1951")
+
+dotchart(WorldPhones51, xlab = "Numbers of Phones (’000s)")
+```
+
+##2.  Pie charts 
++ Pie charts display a vector of numbers by breaking up a circular disk into pieces whose angle (and hence area) is proportional to each number.
+
+###  displays a basic example based on a dataset
+```{r}
+#creat data
+groupsizes <- c(18, 30, 32, 10, 10) 
+labels <- c("A", "B", "C", "D", "F") 
+```
+labels        | groupsizes
+------------- | -------------
+      A       |     18
+      B       |     30
+      C       |     32
+      D       |     10
+      F       |     10
+
+```{r,fig.align='center'}
+pie(groupsizes, labels, col = c("grey40", "white", "grey", "black", "grey90"))
+```
+
+
+##3.Histograms
+ + A histogram is a special type of  barchart that is used to show the frequency distribution of a collection of numbers. 
+ + Each bar represents the count of x values that fall in the range in dicated by the base of the bar.
+ 
+###  displays a basic example based on a built-in dataset
+
+
+```{r,comment=NA}
+head(islands) #islands is a data about area of the contries all over the world
+```
+The histogram bars decrease in size, roughly exponentially,in the direction of increasing area(along the horizontal axis)
+```{r,fig.align='center'}
+hist(log(1000*islands, 10), xlab = "Area (on base 10 log scale)", main = "Areas of the World’s Largest Landmasses")
+```
+
+##4.Box plots
+
+ + A box plot (or “box-and-whisker plot”) is an alternative to a histogram to give a quick visual display of the main features of a set of data. 
+ + A rectangular box is drawn, together with lines which protrude from two opposing sides. 
+ + The box gives an indication of the location and spread of the central portion of the data, while the extent of the lines(the“whiskers”) providesan idea of the range of the bulk of the data. In some implementations, outliers (observations that are very different from the rest of the data)are plotted as separate points. 
+
+###  displays a basic example based on a built-in dataset
+
+```{r,fig.align='center'}
+boxplot(Sepal.Length ~ Species, data = iris, ylab = "Sepal length (cm)", main = "Iris measurements", boxwex = 0.5)
+```
+
+##5.Scatterplots
+
+ + When doing statistics, most of the interesting problems have to do with the relationships between different measurements. 
+ + One of the most commonly used plots is the scatterplot, in which points (xi,yi), i= 1,...,n are drawn using dots or other symbols.   + These are drawn to show relationships between the xi and yi values.
+
+###  displays a basic example based on a  dataset
+
+```{r,fig.align='center',out.width='50%'}
+x <- rnorm(100)   # assigns 100 random normal observations to x 
+y <- rpois(100, 30)    # assigns 100 random Poisson observationsto y; mean value is 30 
+mean(y)  # the resulting value should be near 30
+```
+
+```{r,fig.align='center',out.width='50%'}
+plot(x, y, main = "Poisson versus Normal")
+```
+
+```{r,fig.align='center',out.width='50%'}
+plot(x, y, pch = 16)  # changes the plot symbol to a solid dot
+plot(x, y, type = 'l') # plots a broken line (a dense tangle of line 
+plot(sort(x), sort(y), type = 'l') # a plot of the sample "quantiles"
+```
+
+
+##6.QQplot
+
+ + Quantile–quantile plots (otherwise known as QQ plots) are a type of scatterplot used to compare the distributions of two groups or to compare a sample with a reference distribution.
+
+###  displays a basic example based on a dataset
+
+```{r,fig.align='center',out.width='80%',fig.show='hold'}
+par(mfrow = c(1,4)) 
+X <- rnorm(1000) 
+#------------------------------------------
+A <- rnorm(1000) 
+qqplot(X, A, main = "A and X are the same")
+#------------------------------------------
+B <- rnorm(1000, mean = 3, sd = 2) 
+qqplot(X, B, main = "B is rescaled X")
+#------------------------------------------
+C <- rt(1000, df = 2) 
+qqplot(X, C, main = "C has heavier tails")
+#------------------------------------------
+D <- rexp(1000) 
+qqplot(X, D, main = "D is skewed to the right")
+```
+
+---------------------
+
+#__low-level graphic in R__
+
+>
+ The low-level graphics facilities provide basic building blocks which can be used to build up graphs step by step
+ which are available to users to customize their plots.
+
+##1.The plotting region and margins 
+
+ + Base graphics in R divides up the display into several regions. 
+ + The plot region is where data will be drawn. 
+ + Within the plot region R maintains a coordinate system based on the data. 
+ +The axes show this coordinate system. Outside the plot region are the margins, numbered clockwise from 1 to 4, starting at the bottom. 
+ +Normally text and labels are plotted in the margins, and R positions objects based on a count of lines out from the plot region. 
+
+###  displays a basic example
+
+```{r,fig.align='center'}
+par(mar = c(5, 5, 5, 5) + 0.1) 
+plot(c(1, 9), c(0, 50), type = 'n', xlab = "", ylab = "")
+text(6, 40, "Plot region") 
+points(6, 20) 
+text(6, 20, "(6, 20)", adj = c(0.5, 2)) 
+mtext(paste("Margin", 1:4), side = 1:4, line = 3) 
+mtext(paste("Line", 0:4), side = 1, line = 0:4, at = 3, cex = 0.6) 
+mtext(paste("Line", 0:4), side = 2, line = 0:4, at = 15, cex = 0.6) 
+mtext(paste("Line", 0:4), side = 3, line = 0:4, at = 3, cex = 0.6) 
+mtext(paste("Line", 0:4), side = 4, line = 0:4, at = 15, cex = 0.6)
+```
+
+
+
+##2.Adding to plots
+
+ + Several functions exist to add components to the plot region of existing graphs:
+
+function           |     用途
+------------------ | ----------------
+`points(x, y, ...)`  | adds points 
+`lines(x, y, ...)`   | adds line segments 
+`text(x, y, labels, ...)` | adds text into the graph 
+`abline(a, b, ...)`  | adds the line $y = a + bx$ 
+`abline(h = y, ...)` | adds a horizontal line 
+`abline(v = x, ...)` | adds a vertical line 
+`polygon(x, y, ...)` | adds a closed and possibly ???lled polygon 
+`segments(x0, y0, x1, y1, ...)` | draws line segments 
+`arrows(x0, y0, x1, y1, ...)`| draws arrows 
+`symbols(x, y, ...)` | draws circles, squares, thermometers, etc. 
+`legend(x, y, legend, ...)` | draws a legend 
+
+###displays a basic example based on a built-in dataset
+
+Consider the Orange data frame again.
+
+In addition to using different plotting characters for the different trees,we will pass lines of best fit(i.e.`leastsquares regression lines`) through the points corresponding to each tree. 
+
+```{r,fig.align='center'}
+plot(circumference ~ age, pch = as.numeric(as.character(Tree)), data = Orange)
+#-----------------------------------------------------------------------------------------
+abline(lm(circumference ~ age, data = Orange, subset = Tree == "1"), lty = 1) #add tree1's redression line
+#-----------------------------------------------------------------------------------------
+abline(lm(circumference ~ age, data = Orange, subset = Tree == "2"), lty = 2) #add tree2's redression line
+#-----------------------------------------------------------------------------------------
+abline(lm(circumference ~ age, data = Orange, subset = Tree == "3"), lty = 3, lwd = 2) #add tree3's redression line
+#-----------------------------------------------------------------------------------------
+abline(lm(circumference ~ age, data = Orange, subset = Tree == "4"), lty = 4) #add tree4's redression line
+#-----------------------------------------------------------------------------------------
+abline(lm(circumference ~ age, data = Orange, subset = Tree == "5"), lty = 5) #add tree5's redression line
+#-----------------------------------------------------------------------------------------
+legend("topleft", legend = paste("Tree", 1:5), lty = 1:5, pch = 1:5, lwd = c(1, 1, 2, 1, 1))
+```
+
+##3.Setting graphical parameters
+  + Rnormallyopens a screen device automatically with default parameters, but a user can open a plotting device explicitly, and set it up exactly as required. 
+
+ function     |   用途
+------------- | -------------
+`pdf(...)`      |  for PDF output 
+`png(...)`      |  for PNG bitmap output 
+`jpeg(...)`     |  for JPEG bitmap output 
+`postscript(...)` | for Postscript output
+
+  + graphical parameters may be set using the `par(...)` function. This function controls a very large number of parameters
+
+ function               |            用途
+------------------------|--------------------------
+`mfrow = c(m, n)` | draw m rows and n columns of plots, rather than  going to a new page for each plot 
+`mfg = c(i, j)` | draw the  next figure in row i and column j 
+`ask = TRUE` | ask the user before erasing a plot 
+`cex = x` | expand characters in the plot region 
+`mar = c(m1, m2, m3, m4)` | sets size of the margins of the plot
+`oma = c(m1, m2, m3, m4)` | sets the outer margins (outside the plot array) usr = c(x1, x2, y1, y2) # sets the coordinate system within the plot
+
+###  displays a basic example
+
+```{r,fig.align='center'}
+par(list = list(mfrow = c(3, 2), mar = c(2.5,2.1,0.1,0.1))) 
+Z <- rnorm(1000) 
+#-----------------------------------------------
+hist(Z, main = "")   # z的長條圖
+#-----------------------------------------------
+hist(Z, breaks = "Freedman-Diaconis", main = "")   # "breaks = Freedman-Diaconis"的z的長條圖
+#-----------------------------------------------
+plot(density(Z), main = "")   # z的機率分布
+#-----------------------------------------------
+boxplot(Z)   # z的盒狀圖
+#-----------------------------------------------
+qqnorm(Z, main = "")  # normal Q–Q plot for z
+#-----------------------------------------------
+qqline(Z) # 為normal Q–Q plot 加上線
+#-----------------------------------------------
+ts.plot(Z)# z的時間序列
+```
+
+
+---------------------
+
+#__advanced linear algebra in R__
+
+##1. Solving linear systems
+ + The function `solve(A, b)` gives the solution to systems of equations of the form $Ax=b$. 
+
+###  displays a basic example
+```{r,comment=NA}
+H3 <- matrix(c(1, 1/2, 1/3, 1/2, 1/3, 1/4, 1/3, 1/4, 1/5), nrow = 3) 
+b <- c(1, 2, 3) 
+x <- solve(H3, b) 
+x
+```
+
+##2.Eigenvalues and eigenvectors
+ + Eigenvalues and eigenvectors can be computed using the function `eigen()`
+ 
+###  displays a basic example
+```{r,comment=NA}
+eigen(H3)
+```
+
+##3.The singular value decomposition of a matrix
+ + The singular value decomposition of a square matrix A consists of three square matrices,U, D and V. 
+ + The matrix D is a diagonal matrix. 
+ + The relation among these matrices is $A=UDV^{-1}$. 
+ + The matricesU and V are said to be orthogonal, which means that $U^{-1} = U$ and $V^{-1} =V$. 
+
+###  displays a basic example
+```{r,comment=NA}
+H3.svd <- svd(H3) 
+H3.svd
+```
+
+##4.The Choleski decomposition of a positive definite matrix 
+ + If amatrix A is positive definite,it possesses a square root.Infact,thereare usually several matrices B such that $B2 =A$. 
+ +The Choleski decomposition is similar, but the idea is to find an upper triangular matrix U such that $UU =A$. The function `chol()` accomplishes this task.
+
+###  displays a basic example
+```{r,comment=NA}
+H3.chol <- chol(H3) 
+H3.chol # This is U, the upper triangular matrix
+
+```
+
+##5.The QR decomposition of a matrix 
+$$A=QR$$
+
+ + where Q is an orthogonal matrix, and R is an upper triangular matrix. 
+ 
+ + This decomposition can be applied even if A is not square. 
+ 
+ + Again, this decomposition can be used to obtain accurate solutions to linear systems of equations. 
+
+###  displays a basic example
+```{r,comment=NA}
+H3.qr <- qr(H3) 
+H3.qr
+
+```
+
+
